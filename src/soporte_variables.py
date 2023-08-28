@@ -1,0 +1,12 @@
+states = {'NV': 'Nevada', 'TX':'Texas', 'IN':'Indianapolis','CA':'California','VA':'Virginia',
+        'NY':'Nueva York','MI':'Michigan','GA':'Georgia','ND':'North Dakota','New York, NY':'Nueva York',
+       'Ciudad Autónoma de Buenos Aires' : 'Buenos Aires', 'Pennsylvania' : 'Pennsylvania','Texas':'Texas',
+       'Utah':'Utah','Iowa':'Iowa','Indiana':'Indiana','Colorado':'Colorado','Ohio':'Ohio', 'New York':'New York',
+       'Illinois':'Illinois','New Hampshire':'New Hampshire','North Carolina':'North Carolina','South Carolina':'South Carolina',
+       'Virginia':'Virginia', 'Washington':'Washington','Missouri':'Missouri','California':'California', 'Florida':'Florida',
+       'Michigan':'Michigan','Maine':'Maine','Buenos Aires':'Buenos Aires','Entre Ríos':'Entre Ríos', 'Salta': 'Salta',
+       'Córdoba':'Córdoba','Mendoza':'Mendoza','Santa Fé':'Santa Fé','Santiago Del Estero':'Santiago Del Estero', 'Misiones':'Misiones',
+       'Catamarca':'Catamarca','Formosa':'Formosa','Jujuy':'Jujuy','La Rioja':'La Rioja','La Pampa':'La Pampa','San Juan':'San Juan',
+       'San Luis':'San Luis','Tucumán':'Tucumán','Quebec':'Quebec','Ontario':'Ontario','Nova Scotia':'Nova Scotia','British Columbia':'British Columbia',
+       'Alberta':'Alberta', 'Manitoba':'Manitoba', 'New Brunswick':'New Brunswick','Saskatchewan':'Saskatchewan',
+       'Newfoundland and Labrador':'Newfoundland and Labrador','Prince Edward Island':'Prince Edward Island','Yukon':'Yukon'}
