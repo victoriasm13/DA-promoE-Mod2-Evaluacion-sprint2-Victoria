@@ -17,21 +17,21 @@ df = etl.limpieza(df, var.states)
 df = etl.nulos_nan(df)
 df = etl.unknown(df)
 locations = etl.ubicaciones(df)
-print(locations)
 print("Unimos los dataframes para tener ya el definitivo")
-df.merge(locations, how='inner', on='state_province')
-print(df)
+df_final = df.merge(locations, how='inner', on='state_province')
+print(df_final)
 print('Una vez listo nuestro dataframe creamos la BBDD')
-db = etl.crear_bbdd_ejercicio('universidades')
+db = etl.crear_bbdd_ejercicio('univ')
 print('Una vez creada la BBDD definimos las tablas')
 tabla_países = '''
                 CREATE TABLE IF NOT EXISTS `univ`.`paises`
-                ( idestado INT NOT NULL AUTO_INCREMENT,
+                (idestado INT NOT NULL AUTO_INCREMENT,
                  nombre_pais VARCHAR(45) NOT NULL,
                  nombre_provincia VARCHAR(45) NOT NULL,
                  latitud FLOAT NOT NULL,
                  longitud FLOAT NOT NULL,
-                 PRIMARY KEY (`idestado`))'''
+                 PRIMARY KEY (`idestado`))
+                 ENGINE = InnoDB;'''
 
 tabla_universidades = '''
                 CREATE TABLE IF NOT EXISTS `univ`.`universidades`
@@ -39,11 +39,36 @@ tabla_universidades = '''
                  nombre_universidad VARCHAR(45) NOT NULL,
                  pagina_web VARCHAR(45) NOT NULL,
                  paises_idestado INT NOT NULL,
-                 PRIMARY KEY (`iduniversidades`))
+                 PRIMARY KEY (`iduniversidades`),
                  CONSTRAINT `fk_idestado`
-                                FOREIGN KEY (`paises_idestado`)
-                                REFERENCES `univ`.`paises`(`idestado`)'''
+                    FOREIGN KEY (`paises_idestado`)
+                    REFERENCES `univ`.`paises`(`idestado`))
+                ENGINE = InnoDB;'''
 
 print('Y las insertamos en nuestra BBDD')
-etl.crear_insertar_tabla("clima","AlumnaAdalab", tabla_países)
-etl.crear_insertar_tabla("clima","AlumnaAdalab", tabla_universidades)
+etl.crear_insertar_tabla("univ","AlumnaAdalab", tabla_países)
+etl.crear_insertar_tabla("univ","AlumnaAdalab", tabla_universidades)
+print('Por último procedemos a la carga de datos')
+#Carga tabla paises
+for indice, fila in df.iterrows():
+
+    query_provincia = f"""
+                INSERT INTO tabla_países (nombre_pais, nombre_provincia,latitud, longitud ) 
+                VALUES ( "{fila["country"]}", "{fila["state_province"]}", "{fila['latitud']}", "{fila['longitud']}");
+                """
+    provincias = etl.check_provincias()
+
+    if len(provincias) == 0 or fila['state_province'] not in provincias[0]:
+        etl.crear_insertar_tabla(query_provincia)
+
+    else:
+        print(f"{fila['state_province']} ya esta en nuestra BBDD")
+    #Carga tabla universidades
+    for indice, fila in df.iterrows():
+        idestado = etl.sacar_id_estado(fila['state_province'])
+        query_universidades = f"""
+                    INSERT INTO tabla_universidades (nombre_universidad, pagina_web,paises_idestado) 
+                    VALUES ( "{fila["name"]}", "{fila["web_pages"]}", {idestado},);
+                    """
+
+        etl.crear_insertar_tabla(query_universidades)

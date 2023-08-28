@@ -62,13 +62,16 @@ class Extraccion:
         print('Creamos el dataframe con las localidades')
         statesc = pd.Series(df['state_province'].unique(), name="state_province")
         locations = statesc.to_frame()
-        print(locations)
+        print(type(locations))
         geolocator = Nominatim(user_agent="specify_your_state")
-        locations["latitud"] = locations["state_province"].apply(lambda x: geolocator.geocode(x).latitude)
-        locations["longitud"] = locations["state_province"].apply(lambda x: geolocator.geocode(x).longitude)
-        print("Comprobamos el df final con la latitud y la longitud")
-        print(locations)
-        return locations
+        try:
+            locations["latitud"] = locations["state_province"].apply(lambda x: geolocator.geocode(x).latitude)
+            locations["longitud"] = locations["state_province"].apply(lambda x: geolocator.geocode(x).longitude)
+            print("Comprobamos el df final con la latitud y la longitud")
+            print(locations)
+            return locations
+        except:
+            print('No se puede realizar el dataframe')
 
     def crear_bbdd_ejercicio(self,nombre_bbdd):
         mydb = mysql.connector.connect(host="localhost", user="root", password="AlumnaAdalab",
@@ -88,8 +91,8 @@ class Extraccion:
 
     def crear_insertar_tabla(self,nombre_bbdd, contraseña, query):
     
-        cnx = mysql.connector.connect(user='root', password=f"{contraseña}",
-                                        host='127.0.0.1', database=f"{nombre_bbdd}",  
+        cnx = mysql.connector.connect(user='root', password="AlumnaAdalab",
+                                        host='127.0.0.1', database="univ",
                                         auth_plugin = 'mysql_native_password')
         mycursor = cnx.cursor()
         
@@ -101,3 +104,17 @@ class Extraccion:
             print("Error Code:", err.errno)
             print("SQLSTATE", err.sqlstate)
             print("Message", err.msg)
+
+    def sacar_id_estado(self, estado):
+        mydb = mysql.connector.connect(user='root', password='AlumnaAdalab',
+                                       host='127.0.0.1', database="univ")
+        mycursor = mydb.cursor()
+
+        try:
+            query_sacar_id = f"SELECT idestado FROM tabla_países WHERE nombre_provincia = {estado}"
+            mycursor.execute(query_sacar_id)
+            id_ = mycursor.fetchall()[0][0]
+            return id_
+
+        except:
+            return "Sorry, no tenemos esa fecha en la BBDD y por lo tanto no te podemos dar su id. "
