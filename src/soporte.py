@@ -28,16 +28,20 @@ class Extraccion:
         return df
 
     def unir_df(self,df1,df2,df3):
+        #df unir(self, *args)
+        #df = pd.concat (list(args), axis=0)
          df = pd.concat([df1, df2, df3], axis = 0)
          return df
+
     
     def limpieza(self,df,states):
 
         columnas =[]
         for col in df.columns:
             col1 = col.replace("-","_")
-            columnas.append(col1)
+            columnas.append(col1) #list comprehension
 
+        #columnas_rename = [ col.replace("-","_") for col in df.columns]
         print(columnas)
         df.columns=columnas
         df.drop(['domains'], axis=1, inplace= True)
@@ -46,6 +50,8 @@ class Extraccion:
         print(df[df.duplicated(subset=['name'])])
         df = df.drop_duplicates(subset=['name'])
         df['state_province'] = df['state_province'].map(states)
+        #df['state_province'].replace(diccionario)
+        #diccionario solo lleva los valores a modificar
         return df
     
     def nulos_nan(self,df):
@@ -73,8 +79,9 @@ class Extraccion:
         except:
             print('No se puede realizar el dataframe')
 
-    def crear_bbdd_ejercicio(self,nombre_bbdd):
-        mydb = mysql.connector.connect(host="localhost", user="root", password="AlumnaAdalab",
+    def crear_bbdd_ejercicio(self,nombre_bbdd, contraseña):
+        #Añadir variable contraseña
+        mydb = mysql.connector.connect(host="localhost", user="root", password=contraseña,
         auth_plugin = 'mysql_native_password')
         print("Conexion realizada con éxito")
 
@@ -91,8 +98,8 @@ class Extraccion:
 
     def crear_insertar_tabla(self,nombre_bbdd, contraseña, query):
     
-        cnx = mysql.connector.connect(user='root', password="AlumnaAdalab",
-                                        host='127.0.0.1', database="univ",
+        cnx = mysql.connector.connect(user='root', password=contraseña,
+                                        host='127.0.0.1', database=nombre_bbdd,
                                         auth_plugin = 'mysql_native_password')
         mycursor = cnx.cursor()
         
@@ -105,16 +112,32 @@ class Extraccion:
             print("SQLSTATE", err.sqlstate)
             print("Message", err.msg)
 
-    def sacar_id_estado(self, estado):
-        mydb = mysql.connector.connect(user='root', password='AlumnaAdalab',
+    def check_provincias(self):
+
+        mydb = mysql.connector.connect(user='root',
+                                       password="AlumnaAdalab",
+                                       host='127.0.0.1',
+                                       database="univ")
+        mycursor = mydb.cursor()
+
+        # query para extraer los valores únicos de ciudades de la tabla de localidades
+        query_existe_ciudad = f"""
+                 SELECT DISTINCT nombre_provincia FROM paises
+                 """
+        mycursor.execute(query_existe_ciudad)
+        provincias = mycursor.fetchall()
+        return provincias
+
+    def sacar_id_estado(self, estado, contraseña):
+        mydb = mysql.connector.connect(user='root', password=contraseña,
                                        host='127.0.0.1', database="univ")
         mycursor = mydb.cursor()
 
         try:
-            query_sacar_id = f"SELECT idestado FROM tabla_países WHERE nombre_provincia = {estado}"
+            query_sacar_id = f"SELECT idestado FROM paises WHERE nombre_provincia = {estado}"
             mycursor.execute(query_sacar_id)
             id_ = mycursor.fetchall()[0][0]
             return id_
 
         except:
-            return "Sorry, no tenemos esa fecha en la BBDD y por lo tanto no te podemos dar su id. "
+            print("Sorry, no tenemos esa fecha en la BBDD y por lo tanto no te podemos dar su id. ")
